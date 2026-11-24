@@ -397,7 +397,12 @@
         }
       }
 
-      convertButton.addEventListener("click", runConversion);
+      convertButton.addEventListener("click", () => {
+        if (!input.value.trim()) {
+          input.value = input.placeholder.replace(/^例：\s*/, "");
+        }
+        runConversion();
+      });
       clearButton.addEventListener("click", () => {
         input.value = "";
         output.value = "";

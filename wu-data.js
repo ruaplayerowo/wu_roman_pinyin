@@ -76,6 +76,7 @@ window.WU_ROMAN_DATA = Object.freeze({
     "ie": "i",
     "ua": "ua",
     "ue": "ue",
+    "in": "in",
     "en": "en",
     "ou": "ou",
     "er": "er",
