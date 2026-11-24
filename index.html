@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="将吴拼音节串转换为吴语罗马音。">
+  <title>吴拼转吴语罗马音</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --background: #f5f7fa;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #657087;
+      --border: #d9dee8;
+      --accent: #315fba;
+      --accent-hover: #274e9a;
+      --focus: rgba(49, 95, 186, 0.22);
+      --warning-bg: #fff8e8;
+      --warning-border: #ead59b;
+      --warning-text: #6d5414;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--background);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    main {
+      width: min(760px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 64px 0;
+    }
+
+    header { margin-bottom: 24px; }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.75rem, 5vw, 2.25rem);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .panel {
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: 0 10px 28px rgba(23, 32, 51, 0.06);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 650;
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 132px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      line-height: 1.55;
+    }
+
+    textarea:focus,
+    button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    textarea:focus { border-color: var(--accent); }
+
+    .hint {
+      margin: 8px 0 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    button {
+      min-height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 16px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    button:hover { background: #f4f6fa; }
+
+    button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    button.primary:hover { background: var(--accent-hover); }
+
+    .output-block { margin-top: 4px; }
+
+    .output-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .output-label label { margin: 0; }
+
+    .copy-button {
+      min-height: 36px;
+      padding: 5px 12px;
+      font-size: 0.9rem;
+    }
+
+    #output { min-height: 112px; }
+
+    .status {
+      min-height: 26px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .warning {
+      display: none;
+      margin-top: 16px;
+      border: 1px solid var(--warning-border);
+      border-radius: 9px;
+      padding: 12px 14px;
+      background: var(--warning-bg);
+      color: var(--warning-text);
+      font-size: 0.9rem;
+    }
+
+    .warning.visible { display: block; }
+
+    .warning p { margin: 0 0 6px; }
+    .warning ul { margin: 0; padding-left: 1.25rem; }
+
+    .source-note {
+      margin-top: 16px;
+      border: 1px solid #bcc9e2;
+      border-radius: 9px;
+      padding: 12px 14px;
+      background: #f3f6fc;
+      color: #34415a;
+      font-size: 0.9rem;
+    }
+
+    .source-note p { margin: 0 0 6px; }
+
+    .source-note a {
+      color: var(--accent);
+      overflow-wrap: anywhere;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .source-note a:hover { color: var(--accent-hover); }
+
+    @media (max-width: 560px) {
+      main { padding: 32px 0; }
+      .panel { padding: 18px; }
+      .output-label { align-items: flex-end; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>吴拼转吴语罗马音</h1>
+      <p>1–8 的声调数字只用于切分音节，输出不保留声调。</p>
+    </header>
+
+    <section class="panel" aria-labelledby="input-label">
+      <label id="input-label" for="input">输入吴拼</label>
+      <textarea id="input" spellcheck="false" autocomplete="off">nen6 ngu6 deq8 zoe6 zy6 zoe6 wu6 li6</textarea>
+      <p class="hint">输入中的空格会被忽略，输出音节之间统一使用空格。</p>
+
+      <div class="actions">
+        <button class="primary" id="convert" type="button">转换</button>
+        <button id="clear" type="button">清空</button>
+      </div>
+
+      <div class="output-block">
+        <div class="output-label">
+          <label for="output">吴语罗马音</label>
+          <button class="copy-button" id="copy" type="button">复制结果</button>
+        </div>
+        <textarea id="output" readonly aria-describedby="status warnings"></textarea>
+        <p class="status" id="status" aria-live="polite"></p>
+        <div class="warning" id="warnings" aria-live="polite"></div>
+        <div class="source-note" aria-label="方案来源">
+          <p>吴语罗马音方案（来自b站@长卷留痕_）：</p>
+          <a href="https://www.bilibili.com/opus/1268615811795255298"
+             target="_blank" rel="noopener noreferrer">https://www.bilibili.com/opus/1268615811795255298</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="wu-data.js"></script>
+  <script>
+    (() => {
+      "use strict";
+
+      const data = window.WU_ROMAN_DATA;
+      const input = document.querySelector("#input");
+      const output = document.querySelector("#output");
+      const status = document.querySelector("#status");
+      const warningsBox = document.querySelector("#warnings");
+      const convertButton = document.querySelector("#convert");
+      const clearButton = document.querySelector("#clear");
+      const copyButton = document.querySelector("#copy");
+
+      const toneDigits = new Set(data.toneDigits.split(""));
+      const initials = Object.keys(data.initials)
+        .sort((left, right) => right.length - left.length);
+
+      function convertSyllable(source) {
+        const normalized = source.toLowerCase();
+
+        if (Object.hasOwn(data.finals, normalized)) {
+          return {
+            value: data.finals[normalized],
+            final: normalized,
+            converted: true
+          };
+        }
+
+        for (const initial of initials) {
+          if (!normalized.startsWith(initial)) continue;
+
+          const final = normalized.slice(initial.length);
+          if (!final || !Object.hasOwn(data.finals, final)) continue;
+
+          return {
+            value: data.initials[initial] + data.finals[final],
+            final,
+            converted: true
+          };
+        }
+
+        return { value: source, final: "", converted: false };
+      }
+
+      function convertText(rawText) {
+        const compact = rawText.normalize("NFC").replace(/\s+/g, "");
+        const result = [];
+        const unknown = new Set();
+        const ambiguityNotes = new Set();
+        let buffer = "";
+        let syllableCount = 0;
+
+        const flushWithoutTone = () => {
+          if (!buffer) return;
+          result.push(buffer);
+          unknown.add(`${buffer}（缺少声调数字）`);
+          buffer = "";
+        };
+
+        for (const character of compact) {
+          if (toneDigits.has(character)) {
+            if (!buffer) {
+              unknown.add(`数字 ${character} 前没有可转换的音节`);
+              continue;
+            }
+
+            const converted = convertSyllable(buffer);
+            result.push(converted.value);
+            syllableCount += 1;
+
+            if (!converted.converted) unknown.add(buffer);
+            if (converted.final && data.ambiguousFinals[converted.final]) {
+              ambiguityNotes.add(`${converted.final}：${data.ambiguousFinals[converted.final]}`);
+            }
+
+            buffer = "";
+            continue;
+          }
+
+          if (/^[a-zü]$/i.test(character)) {
+            buffer += character;
+            continue;
+          }
+
+          flushWithoutTone();
+          result.push(character);
+        }
+
+        flushWithoutTone();
+        return {
+          value: result.join(" ")
+            .replace(/\s+([,.;:!?，。；：！？、])/g, "$1")
+            .replace(/([（(【《])\s+/g, "$1")
+            .replace(/\s+([）)】》])/g, "$1")
+            .replace(/\s*-\s*/g, "-"),
+          syllableCount,
+          unknown: [...unknown],
+          ambiguityNotes: [...ambiguityNotes]
+        };
+      }
+
+      function renderWarnings(conversion) {
+        const sections = [];
+
+        if (conversion.unknown.length) {
+          sections.push(
+            `<p><strong>未完整转换</strong></p><ul>${conversion.unknown
+              .map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+          );
+        }
+
+        if (conversion.ambiguityNotes.length) {
+          sections.push(
+            `<p><strong>采用的默认写法</strong></p><ul>${conversion.ambiguityNotes
+              .map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+          );
+        }
+
+        warningsBox.innerHTML = sections.join("");
+        warningsBox.classList.toggle("visible", sections.length > 0);
+      }
+
+      function escapeHtml(value) {
+        return value.replace(/[&<>"']/g, character => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "\"": "&quot;",
+          "'": "&#039;"
+        })[character]);
+      }
+
+      function runConversion() {
+        const conversion = convertText(input.value);
+        output.value = conversion.value;
+
+        if (!input.value.trim()) {
+          status.textContent = "请输入吴拼。";
+        } else if (conversion.syllableCount === 0) {
+          status.textContent = "没有找到以 1–8 声调数字结尾的音节。";
+        } else {
+          status.textContent = `已识别 ${conversion.syllableCount} 个音节；声调已移除，音节已用空格分开。`;
+        }
+
+        renderWarnings(conversion);
+      }
+
+      async function copyResult() {
+        if (!output.value) return;
+
+        try {
+          await navigator.clipboard.writeText(output.value);
+          status.textContent = "结果已复制。";
+        } catch {
+          output.select();
+          document.execCommand("copy");
+          status.textContent = "结果已复制。";
+        }
+      }
+
+      convertButton.addEventListener("click", runConversion);
+      clearButton.addEventListener("click", () => {
+        input.value = "";
+        output.value = "";
+        status.textContent = "";
+        warningsBox.innerHTML = "";
+        warningsBox.classList.remove("visible");
+        input.focus();
+      });
+      copyButton.addEventListener("click", copyResult);
+      input.addEventListener("input", runConversion);
+
+      runConversion();
+    })();
+  </script>
+</body>
+</html>
