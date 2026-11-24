@@ -1,3 +1,5 @@
+已部署到网页 https://ruaplayerowo.github.io/wu_roman_pinyin/。
+
 方案（来自b站@长卷留痕_）：
 
 https://www.bilibili.com/opus/1268615811795255298
