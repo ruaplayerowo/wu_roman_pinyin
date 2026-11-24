@@ -90,6 +90,11 @@
 
     textarea:focus { border-color: var(--accent); }
 
+    textarea::placeholder {
+      color: #969eae;
+      opacity: 1;
+    }
+
     .hint {
       margin: 8px 0 20px;
       color: var(--muted);
@@ -205,7 +210,8 @@
 
     <section class="panel" aria-labelledby="input-label">
       <label id="input-label" for="input">输入吴拼</label>
-      <textarea id="input" spellcheck="false" autocomplete="off">nen6 ngu6 deq8 zoe6 zy6 zoe6 wu6 li6</textarea>
+      <textarea id="input" spellcheck="false" autocomplete="off"
+                placeholder="例：thi1 tshin1 seq7 ten5 i1 yu6"></textarea>
       <p class="hint">输入中的空格会被忽略，输出音节之间统一使用空格。</p>
 
       <div class="actions">
